@@ -116,6 +116,8 @@ echo "
 
 然后在两台机器上分别启动wireguard，wireguard的部分命令如下：
 
+**请特别注意，中转机器开启wg之后，无法通过ssh访问，需要从落地机器访问回来**
+
 ```shell
 # 启动WireGuard
 wg-quick up wg0
