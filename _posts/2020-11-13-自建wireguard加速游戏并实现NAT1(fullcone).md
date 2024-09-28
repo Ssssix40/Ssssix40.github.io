@@ -184,7 +184,7 @@ git clone https://github.com/Chion82/netfilter-full-cone-nat.git
 #### 2.3.1 编译libmnl
 
 ```shell
-cd ~/fullcone/libmbl
+cd ~/fullcone/libmnl
 sh autogen.sh
 ./configure
 make
@@ -223,6 +223,7 @@ insmod xt_FULLCONENAT.ko
 #### 2.3.4 编译和替换iptables
 
 ```shell
+cd ~/fullcone/iptables/
 cp ~/fullcone/netfilter-full-cone-nat/libipt_FULLCONENAT.c ~/fullcone/iptables/extensions/
 ln -sfv /usr/sbin/xtables-multi /usr/bin/iptables-xml
 ./autogen.sh
@@ -233,7 +234,7 @@ make
 make install
 
 #先关闭iptables
-systemctl  stop iptables
+systemctl stop iptables
 #进入相应目录，并覆盖相关文件
 cd /usr/local/sbin
 cp /usr/local/sbin/iptables /sbin/   
