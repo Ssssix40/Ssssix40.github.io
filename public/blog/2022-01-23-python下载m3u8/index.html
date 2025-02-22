@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta http-equiv="X-Clacks-Overhead" content="GNU Terry Pratchett" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="shortcut icon" href="http://localhost:1313/images/favicon.png" />
+<title>python下载m3u8 | spiritshaman</title>
+<meta name="title" content="python下载m3u8" />
+<meta name="description" content="ps: 本文前提是获得了m3u8_url，同时该url没有进行任何加密。
+单线程下载 import requests import os # from subprocess import run # 创建相应的文件夹 if not os.path.exists(&#39;download&#39;): os.mkdir(&#39;download&#39;) if not os.path.exists(&#39;download/m3u8&#39;): os.mkdir(&#39;download/m3u8&#39;) if not os.path.exists(&#39;download/temp&#39;): os.mkdir(&#39;download/temp&#39;) def download(medianame, m3u8_url): headers = { &#39;user-agent&#39;: &#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36&#39; } url = &#39;/&#39;.join(m3u8_url.split(&#39;/&#39;)[:-1]) &#43; &#39;/&#39; with open(&#39;download/m3u8/&#39; &#43; medianame &#43; &#39;.m3u8&#39;, &#39;wb&#39;) as f: r = requests.get(m3u8_url, headers=headers) f.write(r.content) line = [] for i in open(&#39;download/m3u8/&#39; &#43; medianame &#43; &#39;." />
+<meta name="keywords" content="Tutorials," />
+
+
+<meta property="og:title" content="python下载m3u8" />
+<meta property="og:description" content="ps: 本文前提是获得了m3u8_url，同时该url没有进行任何加密。
+单线程下载 import requests import os # from subprocess import run # 创建相应的文件夹 if not os.path.exists(&#39;download&#39;): os.mkdir(&#39;download&#39;) if not os.path.exists(&#39;download/m3u8&#39;): os.mkdir(&#39;download/m3u8&#39;) if not os.path.exists(&#39;download/temp&#39;): os.mkdir(&#39;download/temp&#39;) def download(medianame, m3u8_url): headers = { &#39;user-agent&#39;: &#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36&#39; } url = &#39;/&#39;.join(m3u8_url.split(&#39;/&#39;)[:-1]) &#43; &#39;/&#39; with open(&#39;download/m3u8/&#39; &#43; medianame &#43; &#39;.m3u8&#39;, &#39;wb&#39;) as f: r = requests.get(m3u8_url, headers=headers) f.write(r.content) line = [] for i in open(&#39;download/m3u8/&#39; &#43; medianame &#43; &#39;." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/blog/2022-01-23-python%E4%B8%8B%E8%BD%BDm3u8/" /><meta property="og:image" content="http://localhost:1313/images/share.webp" /><meta property="article:section" content="blog" />
+<meta property="article:published_time" content="2022-02-23T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-02-23T00:00:00+00:00" /><meta property="og:site_name" content="Bear Cub" />
+
+
+
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="http://localhost:1313/images/share.webp" /><meta name="twitter:title" content="python下载m3u8"/>
+<meta name="twitter:description" content="ps: 本文前提是获得了m3u8_url，同时该url没有进行任何加密。
+单线程下载 import requests import os # from subprocess import run # 创建相应的文件夹 if not os.path.exists(&#39;download&#39;): os.mkdir(&#39;download&#39;) if not os.path.exists(&#39;download/m3u8&#39;): os.mkdir(&#39;download/m3u8&#39;) if not os.path.exists(&#39;download/temp&#39;): os.mkdir(&#39;download/temp&#39;) def download(medianame, m3u8_url): headers = { &#39;user-agent&#39;: &#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36&#39; } url = &#39;/&#39;.join(m3u8_url.split(&#39;/&#39;)[:-1]) &#43; &#39;/&#39; with open(&#39;download/m3u8/&#39; &#43; medianame &#43; &#39;.m3u8&#39;, &#39;wb&#39;) as f: r = requests.get(m3u8_url, headers=headers) f.write(r.content) line = [] for i in open(&#39;download/m3u8/&#39; &#43; medianame &#43; &#39;."/>
+<meta name="twitter:site" content="@Since640"/>
+
+
+
+<meta itemprop="name" content="python下载m3u8">
+<meta itemprop="description" content="ps: 本文前提是获得了m3u8_url，同时该url没有进行任何加密。
+单线程下载 import requests import os # from subprocess import run # 创建相应的文件夹 if not os.path.exists(&#39;download&#39;): os.mkdir(&#39;download&#39;) if not os.path.exists(&#39;download/m3u8&#39;): os.mkdir(&#39;download/m3u8&#39;) if not os.path.exists(&#39;download/temp&#39;): os.mkdir(&#39;download/temp&#39;) def download(medianame, m3u8_url): headers = { &#39;user-agent&#39;: &#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36&#39; } url = &#39;/&#39;.join(m3u8_url.split(&#39;/&#39;)[:-1]) &#43; &#39;/&#39; with open(&#39;download/m3u8/&#39; &#43; medianame &#43; &#39;.m3u8&#39;, &#39;wb&#39;) as f: r = requests.get(m3u8_url, headers=headers) f.write(r.content) line = [] for i in open(&#39;download/m3u8/&#39; &#43; medianame &#43; &#39;."><meta itemprop="datePublished" content="2022-02-23T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2022-02-23T00:00:00+00:00" />
+<meta itemprop="wordCount" content="382"><meta itemprop="image" content="http://localhost:1313/images/share.webp" />
+<meta itemprop="keywords" content="Tutorials," />
+<meta name="referrer" content="no-referrer-when-downgrade" />
+
+  <style>
+  :root {
+      --width: 800px;
+      --font-main: Verdana, sans-serif;
+      --font-secondary: Verdana, sans-serif;
+      --font-scale: 1em;
+      --background-color: #fff;
+      --heading-color: #222;
+      --text-color: #444;
+      --link-color: #3273dc;
+      --visited-color:  #8b6fcb;
+      --code-background-color: #f2f2f2;
+      --code-color: #222;
+      --blockquote-color: #222;
+  }
+
+  @media (prefers-color-scheme: dark) {
+      :root {
+          --background-color: #333;
+          --heading-color: #eee;
+          --text-color: #ddd;
+          --link-color: #8cc2dd;
+          --visited-color:  #8b6fcb;
+          --code-background-color: #777;
+          --code-color: #ddd;
+          --blockquote-color: #ccc;
+      }
+  }
+
+  body {
+      font-family: var(--font-secondary);
+      font-size: var(--font-scale);
+      margin: auto;
+      padding: 20px;
+      max-width: var(--width);
+      text-align: left;
+      background-color: var(--background-color);
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      line-height: 1.5;
+      color: var(--text-color);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+      font-family: var(--font-main);
+      color: var(--heading-color);
+  }
+
+  a {
+      color: var(--link-color);
+      cursor: pointer;
+      text-decoration: none;
+  }
+
+  a:hover {
+      text-decoration: underline; 
+  }
+
+  nav a {
+      margin-right: 8px;
+  }
+
+  strong, b {
+      color: var(--heading-color);
+  }
+
+  button {
+      margin: 0;
+      cursor: pointer;
+  }
+
+  main {
+      line-height: 1.6;
+  }
+
+  table {
+      width: 100%;
+  }
+
+  hr {
+      border: 0;
+      border-top: 1px dashed;
+  }
+
+  img {
+      max-width: 100%;
+  }
+
+  code {
+      font-family: monospace;
+      padding: 2px;
+      background-color: var(--code-background-color);
+      color: var(--code-color);
+      border-radius: 3px;
+  }
+
+  blockquote {
+      border-left: 1px solid #999;
+      color: var(--code-color);
+      padding-left: 20px;
+      font-style: italic;
+  }
+
+  footer {
+      padding: 25px 0;
+      text-align: center;
+  }
+
+  .title:hover {
+      text-decoration: none;
+  }
+
+  .title h1 {
+      font-size: 1.5em;
+  }
+
+  .inline {
+      width: auto !important;
+  }
+
+  .highlight, .code {
+      padding: 1px 15px;
+      background-color: var(--code-background-color);
+      color: var(--code-color);
+      border-radius: 3px;
+      margin-block-start: 1em;
+      margin-block-end: 1em;
+      overflow-x: auto;
+  }
+
+   
+  ul.blog-posts {
+      list-style-type: none;
+      padding: unset;
+  }
+
+  ul.blog-posts li {
+      display: flex;
+  }
+
+  ul.blog-posts li span {
+      flex: 0 0 130px;
+  }
+
+  ul.blog-posts li a:visited {
+      color: var(--visited-color);
+  }
+</style>
+
+</head>
+
+<body>
+  <header><a href="/" class="title">
+  <h2>spiritshaman</h2>
+</a>
+<nav><a href="/">Home</a>
+
+
+<a href="/blog">Blog</a>
+
+</nav>
+</header>
+  <main>
+
+<h1>python下载m3u8</h1>
+<p>
+  <i>
+    <time datetime='2022-02-23'>
+      2022-02-23
+    </time>
+  </i>
+</p>
+
+<content>
+  <p>ps: 本文前提是获得了m3u8_url，同时该url没有进行任何加密。</p>
+<h2 id="单线程下载">单线程下载</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> requests
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> os
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># from subprocess import run</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 创建相应的文件夹</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>exists(<span style="color:#e6db74">&#39;download&#39;</span>):
+</span></span><span style="display:flex;"><span>    os<span style="color:#f92672">.</span>mkdir(<span style="color:#e6db74">&#39;download&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>exists(<span style="color:#e6db74">&#39;download/m3u8&#39;</span>):
+</span></span><span style="display:flex;"><span>    os<span style="color:#f92672">.</span>mkdir(<span style="color:#e6db74">&#39;download/m3u8&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>exists(<span style="color:#e6db74">&#39;download/temp&#39;</span>):
+</span></span><span style="display:flex;"><span>    os<span style="color:#f92672">.</span>mkdir(<span style="color:#e6db74">&#39;download/temp&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">download</span>(medianame, m3u8_url):
+</span></span><span style="display:flex;"><span>    headers <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;user-agent&#39;</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36&#39;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    url <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;/&#39;</span><span style="color:#f92672">.</span>join(m3u8_url<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;/&#39;</span>)[:<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;/&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#39;download/m3u8/&#39;</span> <span style="color:#f92672">+</span> medianame <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;.m3u8&#39;</span>, <span style="color:#e6db74">&#39;wb&#39;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>        r <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(m3u8_url, headers<span style="color:#f92672">=</span>headers)
+</span></span><span style="display:flex;"><span>        f<span style="color:#f92672">.</span>write(r<span style="color:#f92672">.</span>content)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    line <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> open(<span style="color:#e6db74">&#39;download/m3u8/&#39;</span> <span style="color:#f92672">+</span> medianame <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;.m3u8&#39;</span>, <span style="color:#e6db74">&#39;r&#39;</span>):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#39;#&#39;</span> <span style="color:#f92672">in</span> i:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">continue</span>
+</span></span><span style="display:flex;"><span>        line<span style="color:#f92672">.</span>append(i<span style="color:#f92672">.</span>replace(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\r</span><span style="color:#e6db74">&#39;</span>, <span style="color:#e6db74">&#39;&#39;</span>)<span style="color:#f92672">.</span>replace(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>, <span style="color:#e6db74">&#39;&#39;</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;开始下载!&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#39;download/&#39;</span> <span style="color:#f92672">+</span> medianame <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;.ts&#39;</span>, <span style="color:#e6db74">&#39;wb&#39;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> tqdm(line):
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># print(url+i)</span>
+</span></span><span style="display:flex;"><span>            r <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(url <span style="color:#f92672">+</span> i)
+</span></span><span style="display:flex;"><span>            f<span style="color:#f92672">.</span>write(r<span style="color:#f92672">.</span>content)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># print(&#39;开始转码,请等待~&#39;)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># run([</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#     &#39;ffmpeg/bin/ffmpeg.exe&#39;, &#39;-i&#39;, &#39;download/&#39; + medianame + &#39;.ts&#39;, &#39;-c:v&#39;,</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#     &#39;copy&#39;, &#39;-c:a&#39;, &#39;copy&#39;, &#39;download/&#39; + medianame + &#39;.mp4&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ])</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># os.remove(&#39;download/&#39; + medianame + &#39;.ts&#39;)</span>
+</span></span><span style="display:flex;"><span>    os<span style="color:#f92672">.</span>remove(<span style="color:#e6db74">&#39;download/m3u8/&#39;</span> <span style="color:#f92672">+</span> medianame <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;.m3u8&#39;</span>)
+</span></span></code></pre></div><h2 id="多线程下载">多线程下载</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> aiohttp
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> asyncio
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> os
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># from subprocess import run</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">combine</span>(temp, file):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> open(file, <span style="color:#e6db74">&#39;wb&#39;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>        list <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>listdir(temp)
+</span></span><span style="display:flex;"><span>        list<span style="color:#f92672">.</span>sort()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> list:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">with</span> open(os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>join(temp, i), <span style="color:#e6db74">&#39;rb&#39;</span>) <span style="color:#66d9ef">as</span> t:
+</span></span><span style="display:flex;"><span>                f<span style="color:#f92672">.</span>write(t<span style="color:#f92672">.</span>read())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">req</span>(client, url, filename, sem):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">with</span> sem:
+</span></span><span style="display:flex;"><span>        response <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> client<span style="color:#f92672">.</span>get(url)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">with</span> open(filename, <span style="color:#e6db74">&#39;wb&#39;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>            f<span style="color:#f92672">.</span>write(<span style="color:#66d9ef">await</span> response<span style="color:#f92672">.</span>content<span style="color:#f92672">.</span>read())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">download_async</span>(medianame, m3u8_url, sem_num):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> int(sem_num) <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">13</span>):
+</span></span><span style="display:flex;"><span>        sem <span style="color:#f92672">=</span> asyncio<span style="color:#f92672">.</span>Semaphore(int(sem_num))
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#39;以</span><span style="color:#e6db74">%s</span><span style="color:#e6db74">进行下载&#39;</span> <span style="color:#f92672">%</span> sem_num)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#39;输入不合格, 以6进行下载&#39;</span>)
+</span></span><span style="display:flex;"><span>        sem <span style="color:#f92672">=</span> asyncio<span style="color:#f92672">.</span>Semaphore(<span style="color:#ae81ff">6</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">with</span> aiohttp<span style="color:#f92672">.</span>ClientSession(connector<span style="color:#f92672">=</span>aiohttp<span style="color:#f92672">.</span>TCPConnector(
+</span></span><span style="display:flex;"><span>            ssl<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)) <span style="color:#66d9ef">as</span> session:
+</span></span><span style="display:flex;"><span>        headers <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#39;user-agent&#39;</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36&#39;</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        url <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;/&#39;</span><span style="color:#f92672">.</span>join(m3u8_url<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;/&#39;</span>)[:<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;/&#39;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#39;download/m3u8/&#39;</span> <span style="color:#f92672">+</span> medianame <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;.m3u8&#39;</span>, <span style="color:#e6db74">&#39;wb&#39;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>            r <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(m3u8_url, headers<span style="color:#f92672">=</span>headers)
+</span></span><span style="display:flex;"><span>            f<span style="color:#f92672">.</span>write(r<span style="color:#f92672">.</span>content)
+</span></span><span style="display:flex;"><span>        urls <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> open(<span style="color:#e6db74">&#39;download/m3u8/&#39;</span> <span style="color:#f92672">+</span> medianame <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;.m3u8&#39;</span>, <span style="color:#e6db74">&#39;r&#39;</span>):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#39;#&#39;</span> <span style="color:#f92672">in</span> i:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">continue</span>
+</span></span><span style="display:flex;"><span>            urls<span style="color:#f92672">.</span>append(i<span style="color:#f92672">.</span>replace(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\r</span><span style="color:#e6db74">&#39;</span>, <span style="color:#e6db74">&#39;&#39;</span>)<span style="color:#f92672">.</span>replace(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>, <span style="color:#e6db74">&#39;&#39;</span>))
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>exists(<span style="color:#e6db74">&#39;download/temp/&#39;</span> <span style="color:#f92672">+</span> medianame):
+</span></span><span style="display:flex;"><span>            os<span style="color:#f92672">.</span>mkdir(<span style="color:#e6db74">&#39;download/temp/&#39;</span> <span style="color:#f92672">+</span> medianame)
+</span></span><span style="display:flex;"><span>        task_list <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> ts_name <span style="color:#f92672">in</span> urls:
+</span></span><span style="display:flex;"><span>            filename <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;download/temp/&#39;</span> <span style="color:#f92672">+</span> medianame <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;/&#39;</span> <span style="color:#f92672">+</span> ts_name
+</span></span><span style="display:flex;"><span>            task <span style="color:#f92672">=</span> asyncio<span style="color:#f92672">.</span>create_task(
+</span></span><span style="display:flex;"><span>                req(session, url <span style="color:#f92672">+</span> ts_name, filename, sem))
+</span></span><span style="display:flex;"><span>            task_list<span style="color:#f92672">.</span>append(task)
+</span></span><span style="display:flex;"><span>        responses <span style="color:#f92672">=</span> [
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">await</span> f <span style="color:#66d9ef">for</span> f <span style="color:#f92672">in</span> tqdm(asyncio<span style="color:#f92672">.</span>as_completed(task_list),
+</span></span><span style="display:flex;"><span>                                  total<span style="color:#f92672">=</span>len(task_list))
+</span></span><span style="display:flex;"><span>        ]
+</span></span><span style="display:flex;"><span>        combine(<span style="color:#e6db74">&#39;download/temp/&#39;</span> <span style="color:#f92672">+</span> medianame, <span style="color:#e6db74">&#39;download/&#39;</span> <span style="color:#f92672">+</span> medianame <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;.ts&#39;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># run([</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#     &#39;ffmpeg/bin/ffmpeg.exe&#39;, &#39;-i&#39;, &#39;download/&#39; + medianame + &#39;.ts&#39;, &#39;-c:v&#39;,</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#     &#39;copy&#39;, &#39;-c:a&#39;, &#39;copy&#39;, &#39;download/&#39; + medianame + &#39;.mp4&#39;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># ])</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># shutil.rmtree(&#39;download/temp/&#39; + medianame)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># os.remove(&#39;download/&#39; + medianame + &#39;.ts&#39;)</span>
+</span></span><span style="display:flex;"><span>        os<span style="color:#f92672">.</span>remove(<span style="color:#e6db74">&#39;download/m3u8/&#39;</span> <span style="color:#f92672">+</span> medianame <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;.m3u8&#39;</span>)
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>loop <span style="color:#f92672">=</span> asyncio<span style="color:#f92672">.</span>get_event_loop()
+</span></span><span style="display:flex;"><span>loop<span style="color:#f92672">.</span>run_until_complete(
+</span></span><span style="display:flex;"><span>    download_async(mediaName, m3u8_url, sem_num))
+</span></span></code></pre></div><h2 id="转码成mp4">转码成mp4</h2>
+<p>取消掉注释的代码，并修改ffmpeg路径至你的ffmpeg路径，即可自动转化成mp4。</p>
+
+</content>
+<p>
+  
+  <a href="http://localhost:1313/tags/tutorials/">#Tutorials</a>
+  
+</p>
+
+  </main>
+  <footer>Made with <a href="https://github.com/janraasch/hugo-bearblog/">Hugo ʕ•ᴥ•ʔ Bear</a>
+</footer>
+
+    
+</body>
+
+</html>

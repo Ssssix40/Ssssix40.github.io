@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-Hans">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="/images/favicon.png" />
+
+<title>树莓派3 &#43; raspbian lite &#43; OpenCV 3&nbsp;|&nbsp;spiritshaman</title>
+<meta
+  name="title"
+  content="树莓派3 &#43; raspbian lite &#43; OpenCV 3"
+/>
+<meta
+  name="description"
+  content="本教程仅针对已经成功刷写树莓派raspbian操作系统的树莓派3,且为raspbian lite系统,且仅针对opencv 3(在本人尝试中,opencv2.4.9并不适用于本教程,而Opencv2.4.9与Opencv3存在一些差异,例如:某些库文件的增减问题.请读者务必在刷写前注意,以免浪费大量时间)
+因为编译安装opencv中存在耗时较长步骤,如果使用ssh对树莓派进行操作,推荐安装 screen 程序,以免发生掉线问题无法得知当前进度,本教程不赘述screen使用方法,如有需要,敬请google
+第一步 安装依赖环境 1.首先的首先是update和upgrade已经存在的一些packages:
+$ sudo apt-get update $ sudo apt-get upgrade 2.安装一些开发工具,比如说cmake
+$ sudo apt-get install build-essential cmake pkg-config 3.然后安装一些图片格式类型库,比如说jpeg,png等等
+$ sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev 4.图片库好了,当然需要安装一些视频库
+$ sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev $ sudo apt-get install libxvidcore-dev libx264-dev 5.opencv的库建立于一个叫highgui的次模组(sub-module),为了完全编译highgui,需要安装GTK开发库
+此处耗时较长
+$ sudo apt-get install libgtk2.0-dev 6.opencv里的许多操作可以通过安装下面的库来实现最优化
+$ sudo apt-get install libatlas-base-dev gfortran 7.最后是需要安装python2.7-dev来编译opencv
+$ sudo apt-get install python2.7-dev 第二步 下载opencv的源代码 本教程使用opencv3."
+/>
+<meta
+  name="keywords"
+  content="python-opencv,环境搭建,树莓派,"
+/>
+
+  <meta name="author" content="SpiritShaman" />
+
+
+
+
+<meta property="og:title" content="树莓派3 &#43; raspbian lite &#43; OpenCV 3" />
+<meta property="og:description" content="本教程仅针对已经成功刷写树莓派raspbian操作系统的树莓派3,且为raspbian lite系统,且仅针对opencv 3(在本人尝试中,opencv2.4.9并不适用于本教程,而Opencv2.4.9与Opencv3存在一些差异,例如:某些库文件的增减问题.请读者务必在刷写前注意,以免浪费大量时间)
+因为编译安装opencv中存在耗时较长步骤,如果使用ssh对树莓派进行操作,推荐安装 screen 程序,以免发生掉线问题无法得知当前进度,本教程不赘述screen使用方法,如有需要,敬请google
+第一步 安装依赖环境 1.首先的首先是update和upgrade已经存在的一些packages:
+$ sudo apt-get update $ sudo apt-get upgrade 2.安装一些开发工具,比如说cmake
+$ sudo apt-get install build-essential cmake pkg-config 3.然后安装一些图片格式类型库,比如说jpeg,png等等
+$ sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev 4.图片库好了,当然需要安装一些视频库
+$ sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev $ sudo apt-get install libxvidcore-dev libx264-dev 5.opencv的库建立于一个叫highgui的次模组(sub-module),为了完全编译highgui,需要安装GTK开发库
+此处耗时较长
+$ sudo apt-get install libgtk2.0-dev 6.opencv里的许多操作可以通过安装下面的库来实现最优化
+$ sudo apt-get install libatlas-base-dev gfortran 7.最后是需要安装python2.7-dev来编译opencv
+$ sudo apt-get install python2.7-dev 第二步 下载opencv的源代码 本教程使用opencv3." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/posts/2017-05-07-%E6%A0%91%E8%8E%93%E6%B4%BE3&#43;-raspbian-lite&#43;-opencv-3/" /><meta property="article:section" content="posts" />
+
+<meta property="og:site_name" content="spiritshaman" />
+
+
+
+
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="树莓派3 &#43; raspbian lite &#43; OpenCV 3"/>
+<meta name="twitter:description" content="本教程仅针对已经成功刷写树莓派raspbian操作系统的树莓派3,且为raspbian lite系统,且仅针对opencv 3(在本人尝试中,opencv2.4.9并不适用于本教程,而Opencv2.4.9与Opencv3存在一些差异,例如:某些库文件的增减问题.请读者务必在刷写前注意,以免浪费大量时间)
+因为编译安装opencv中存在耗时较长步骤,如果使用ssh对树莓派进行操作,推荐安装 screen 程序,以免发生掉线问题无法得知当前进度,本教程不赘述screen使用方法,如有需要,敬请google
+第一步 安装依赖环境 1.首先的首先是update和upgrade已经存在的一些packages:
+$ sudo apt-get update $ sudo apt-get upgrade 2.安装一些开发工具,比如说cmake
+$ sudo apt-get install build-essential cmake pkg-config 3.然后安装一些图片格式类型库,比如说jpeg,png等等
+$ sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev 4.图片库好了,当然需要安装一些视频库
+$ sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev $ sudo apt-get install libxvidcore-dev libx264-dev 5.opencv的库建立于一个叫highgui的次模组(sub-module),为了完全编译highgui,需要安装GTK开发库
+此处耗时较长
+$ sudo apt-get install libgtk2.0-dev 6.opencv里的许多操作可以通过安装下面的库来实现最优化
+$ sudo apt-get install libatlas-base-dev gfortran 7.最后是需要安装python2.7-dev来编译opencv
+$ sudo apt-get install python2.7-dev 第二步 下载opencv的源代码 本教程使用opencv3."/>
+
+
+
+
+<meta itemprop="name" content="树莓派3 &#43; raspbian lite &#43; OpenCV 3">
+<meta itemprop="description" content="本教程仅针对已经成功刷写树莓派raspbian操作系统的树莓派3,且为raspbian lite系统,且仅针对opencv 3(在本人尝试中,opencv2.4.9并不适用于本教程,而Opencv2.4.9与Opencv3存在一些差异,例如:某些库文件的增减问题.请读者务必在刷写前注意,以免浪费大量时间)
+因为编译安装opencv中存在耗时较长步骤,如果使用ssh对树莓派进行操作,推荐安装 screen 程序,以免发生掉线问题无法得知当前进度,本教程不赘述screen使用方法,如有需要,敬请google
+第一步 安装依赖环境 1.首先的首先是update和upgrade已经存在的一些packages:
+$ sudo apt-get update $ sudo apt-get upgrade 2.安装一些开发工具,比如说cmake
+$ sudo apt-get install build-essential cmake pkg-config 3.然后安装一些图片格式类型库,比如说jpeg,png等等
+$ sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev 4.图片库好了,当然需要安装一些视频库
+$ sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev $ sudo apt-get install libxvidcore-dev libx264-dev 5.opencv的库建立于一个叫highgui的次模组(sub-module),为了完全编译highgui,需要安装GTK开发库
+此处耗时较长
+$ sudo apt-get install libgtk2.0-dev 6.opencv里的许多操作可以通过安装下面的库来实现最优化
+$ sudo apt-get install libatlas-base-dev gfortran 7.最后是需要安装python2.7-dev来编译opencv
+$ sudo apt-get install python2.7-dev 第二步 下载opencv的源代码 本教程使用opencv3.">
+
+<meta itemprop="wordCount" content="179">
+<meta itemprop="keywords" content="python-opencv,环境搭建,树莓派," />
+<meta name="referrer" content="no-referrer-when-downgrade" />
+
+    
+    
+    
+    <link href="/bundle.min.css" rel="stylesheet" />
+
+    
+
+    
+
+
+    
+</head>
+
+  <body>
+    <header>
+      <nav>
+  <a
+    href="/"
+    
+    >Home</a
+  >
+
+  <a
+    href=""
+    
+    >Blog</a
+  >
+
+
+  <a href="/index.xml">
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 448 512">
+      
+      <path
+        d="M0 64C0 46.3 14.3 32 32 32c229.8 0 416 186.2 416 416c0 17.7-14.3 32-32 32s-32-14.3-32-32C384 253.6 226.4 96 32 96C14.3 96 0 81.7 0 64zM0 416a64 64 0 1 1 128 0A64 64 0 1 1 0 416zM32 160c159.1 0 288 128.9 288 288c0 17.7-14.3 32-32 32s-32-14.3-32-32c0-123.7-100.3-224-224-224c-17.7 0-32-14.3-32-32s14.3-32 32-32z"
+      />
+    </svg>
+    RSS
+  </a>
+
+</nav>
+
+<h1>树莓派3 &#43; raspbian lite &#43; OpenCV 3</h1>
+
+
+    </header>
+    <main>
+      
+  
+  
+  <content>
+    <p><strong>本教程仅针对已经成功刷写树莓派raspbian操作系统的树莓派3,且为raspbian lite系统,且仅针对opencv 3(在本人尝试中,opencv2.4.9并不适用于本教程,而Opencv2.4.9与Opencv3存在一些差异,例如:某些库文件的增减问题.请读者务必在刷写前注意,以免浪费大量时间)</strong></p>
+<p><strong>因为编译安装opencv中存在耗时较长步骤,如果使用ssh对树莓派进行操作,推荐安装 screen 程序,以免发生掉线问题无法得知当前进度,本教程不赘述screen使用方法,如有需要,敬请google</strong></p>
+<h2 id="第一步-安装依赖环境">第一步 安装依赖环境</h2>
+<p>1.首先的首先是update和upgrade已经存在的一些packages:</p>
+<pre><code>$ sudo apt-get update
+$ sudo apt-get upgrade
+</code></pre>
+<p>2.安装一些开发工具,比如说<code>cmake</code></p>
+<pre><code>$ sudo apt-get install build-essential cmake pkg-config
+</code></pre>
+<p>3.然后安装一些图片格式类型库,比如说jpeg,png等等</p>
+<pre><code>$ sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev
+</code></pre>
+<p>4.图片库好了,当然需要安装一些视频库</p>
+<pre><code>$ sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev
+$ sudo apt-get install libxvidcore-dev libx264-dev
+</code></pre>
+<p>5.opencv的库建立于一个叫<code>highgui</code>的次模组(sub-module),为了完全编译<code>highgui</code>,需要安装GTK开发库</p>
+<p><em>此处耗时较长</em></p>
+<pre><code>$ sudo apt-get install libgtk2.0-dev
+</code></pre>
+<p>6.opencv里的许多操作可以通过安装下面的库来实现最优化</p>
+<pre><code>$ sudo apt-get install libatlas-base-dev gfortran
+</code></pre>
+<p>7.最后是需要安装python2.7-dev来编译opencv</p>
+<pre><code>$ sudo apt-get install python2.7-dev
+</code></pre>
+<h2 id="第二步-下载opencv的源代码">第二步 下载opencv的源代码</h2>
+<p><em>本教程使用opencv3.1.0版本,你可以使用最新版代替</em></p>
+<pre><code>$ cd ~
+$ mkdir opencv
+$ cd opencv
+$ wget -O opencv.zip https://github.com/Itseez/opencv/archive/3.1.0.zip
+$ unzip opencv.zip
+</code></pre>
+<p>为了完整安装opencv,还需要opencv_contrib</p>
+<p><strong>注意:opencv和opencv_contrib的版本号必须一致</strong></p>
+<pre><code>$ wget -O opencv_contrib.zip https://github.com/Itseez/opencv_contrib/archive/3.1.0.zip
+$ unzip opencv_contrib.zip
+</code></pre>
+<h2 id="第三步-配置python">第三步 配置python</h2>
+<p>首先安装pip</p>
+<pre><code>$ wget https://bootstrap.pypa.io/get-pip.py
+$ sudo python get-pip.py
+</code></pre>
+<p>然后通过pip安装numpy</p>
+<p><em>此处耗时较长</em></p>
+<pre><code>$ sudo pip install numpy
+</code></pre>
+<h2 id="第四步-编译安装opencv">第四步 编译,安装opencv</h2>
+<p>通过CMake构建opencv</p>
+<pre><code>$ cd ~/opencv/opencv-3.1.0/
+$ mkdir build
+$ cd build
+$ cmake -D CMAKE_BUILD_TYPE=RELEASE \
+    -D CMAKE_INSTALL_PREFIX=/usr/local \
+    -D INSTALL_PYTHON_EXAMPLES=ON \
+    -D OPENCV_EXTRA_MODULES_PATH=~/opencv/opencv_contrib-3.1.0/modules \
+    -D BUILD_EXAMPLES=ON ..
+</code></pre>
+<p>完成后检查CMake输出中是否存在如下图所示的信息:</p>
+<p><img src="http://ww1.sinaimg.cn/large/005L13Yhgy1ffd8ap1fw6j30n402l3yh.jpg" alt=""></p>
+<p><em>如果没有没有构建成功,且确保之前的步骤正确,可以尝试重启树莓派</em></p>
+<p><strong>万事俱备,只欠东风</strong></p>
+<pre><code>$ make -j4
+</code></pre>
+<p><em>-j4可以使用4个核心提高速度,但是容易发生错误,如不成功,可以去掉后重试</em></p>
+<pre><code>$ make clean
+$ make
+</code></pre>
+<p>编译没出现错误成功完成后</p>
+<pre><code>$ sudo make install
+$ sudo ldconfig
+</code></pre>
+<h2 id="第五步-检验安装">第五步 检验安装</h2>
+<pre><code>$ python
+&gt;&gt;&gt; import cv2
+&gt;&gt;&gt; cv2.__version__
+//此时如果出现'3.1.0'则安装成功
+</code></pre>
+<p>本文参考链接:</p>
+<p><a href="http://www.pyimagesearch.com/2016/04/18/install-guide-raspberry-pi-3-raspbian-jessie-opencv-3/">http://www.pyimagesearch.com/2016/04/18/install-guide-raspberry-pi-3-raspbian-jessie-opencv-3/</a></p>
+<p>(原文包含多版本python环境时虚拟python环境的运用)</p>
+<p>以上.</p>
+
+  </content>
+  
+  
+    <p>
+      
+        <a href="/tags/python-opencv/">#python-opencv</a>&nbsp;&nbsp;
+      
+        <a href="/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">#环境搭建</a>&nbsp;&nbsp;
+      
+        <a href="/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/">#树莓派</a>&nbsp;&nbsp;
+      
+    </p>
+  
+
+    </main>
+    <footer>
+      
+  <span>© 2025 spiritshaman</span>
+
+
+  <span>
+    |
+    Made with
+    <a href="https://github.com/maolonglong/hugo-simple/">Hugo ʕ•ᴥ•ʔ Simple</a>
+  </span>
+
+
+    </footer>
+
+    
+</body>
+</html>

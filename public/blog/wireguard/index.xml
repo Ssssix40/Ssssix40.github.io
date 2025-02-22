@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Wireguard on SpiritShaman</title>
+    <link>http://localhost:1313/blog/wireguard/</link>
+    <description>Recent content in Wireguard on SpiritShaman</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Fri, 13 Nov 2020 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/blog/wireguard/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>自建 wireguard 加速游戏并实现NAT1(fullcone)</title>
+      <link>http://localhost:1313/%E8%87%AA%E5%BB%BA-wireguard-%E5%8A%A0%E9%80%9F%E6%B8%B8%E6%88%8F%E5%B9%B6%E5%AE%9E%E7%8E%B0nat1fullcone/</link>
+      <pubDate>Fri, 13 Nov 2020 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/%E8%87%AA%E5%BB%BA-wireguard-%E5%8A%A0%E9%80%9F%E6%B8%B8%E6%88%8F%E5%B9%B6%E5%AE%9E%E7%8E%B0nat1fullcone/</guid>
+      <description>1. 前言 参考本文可以实现以下几点需求：&#xA;通过wireguard建立隧道以及给linux内核添加FULLCONE模块，实现一条NAT1的虚假IPLC。 因为wireguard本身会加速所有的流量，所以通过netch配合虚假IPLC局域网中转机的socks5代理服务达到在pc只加速游戏的效果。 @#￥%……&amp;amp;*（ 本文实现的方式主要是通过打隧道的方式实现一个虚假的iplc，也就是说，如果您完全按照我的教程走的话，您需要具备以下的前提：&#xA;一台延迟尚可且具有公网ip的落地vps，毕竟是用于打游戏，延迟相对比较重要，同时FULLCONE需要公网IP支持。 一台中转的服务器，建议是局域网内的一台虚拟机或者一个树莓派。我这边是自己组了一台pve服务器，然后开了个lxc。需要注意的是，当服务开启之后，该中转机的所有流量都会走wireguard。 当然还有一定的linux知识，因为本教程在一些细节方面可能讲的并不是那么全面。 本文会根据不同的需求拆开成本体以及DLC两部分，完成本体就可以实现本文所述功能，但是DLC则提供了一些特殊的功能。比如udp2raw可以帮助wireguard躲避运营商给你时不时的一个断流打击。&#xA;2. 本体 2.1 安装wireguard 本文主要介绍ubuntu的安装方式，其他linux发行版敬请请参考官方教程或者google。&#xA;您需要在落地和中转机器上都安装wireguard，落地机器作为server而中转机器作为client。&#xA;su - root apt update # ubuntu 18.04 及以上版本 apt install wireguard resolvconf -y # ubuntu 16.04 及以下版本 add-apt-repository ppa:wireguard/wireguard apt update apt install wireguard resolvconf -y # 在安装完成之后建议重启一下 # reboot 2.2 配置wireguard 在落地机器依次输入下列命令:&#xA;# 开启ipv4流量转发 echo &amp;#34;net.ipv4.ip_forward = 1&amp;#34; &amp;gt;&amp;gt; /etc/sysctl.conf sysctl -p # 创建并进入WireGuard文件夹 mkdir -p /etc/wireguard &amp;amp;&amp;amp; chmod 0777 /etc/wireguard cd /etc/wireguard umask 077 # 生成服务器和客户端密钥对 wg genkey | tee server_privatekey | wg pubkey &amp;gt; server_publickey wg genkey | tee client_privatekey | wg pubkey &amp;gt; client_publickey 通过ifconfig检查主网卡名称，一般会为eth0或者ens3。</description>
+    </item>
+  </channel>
+</rss>

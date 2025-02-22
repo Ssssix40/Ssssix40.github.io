@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-Hans">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="/images/favicon.png" />
+
+<title>MacOS python3 import tensorflow1.6.0报错Illegal instruction:4&nbsp;|&nbsp;spiritshaman</title>
+<meta
+  name="title"
+  content="MacOS python3 import tensorflow1.6.0报错Illegal instruction:4"
+/>
+<meta
+  name="description"
+  content="在我使用pip3 install --upgrade tensorflow命令将tensorflow升级到1.6.0后，出现了Illegal instruction:4的报错，在反复卸载安装，安装python虚拟环境无果后，发现是tensorflow 1.6.0版本问题，虽然不明白问题所在，但是版本回退后可以解决此问题。
+{% highlight shell %} $ pip3 uninstall tensorflow $ pip3 install -Iv tensorflow==1.5 {% endhighlight %}
+谢谢您的阅读🙏"
+/>
+<meta
+  name="keywords"
+  content="python,tensorflow,issue fixed,"
+/>
+
+  <meta name="author" content="SpiritShaman" />
+
+
+
+
+<meta property="og:title" content="MacOS python3 import tensorflow1.6.0报错Illegal instruction:4" />
+<meta property="og:description" content="在我使用pip3 install --upgrade tensorflow命令将tensorflow升级到1.6.0后，出现了Illegal instruction:4的报错，在反复卸载安装，安装python虚拟环境无果后，发现是tensorflow 1.6.0版本问题，虽然不明白问题所在，但是版本回退后可以解决此问题。
+{% highlight shell %} $ pip3 uninstall tensorflow $ pip3 install -Iv tensorflow==1.5 {% endhighlight %}
+谢谢您的阅读🙏" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/posts/2018-03-19-import-tensorflow%E6%8A%A5%E9%94%99/" /><meta property="article:section" content="posts" />
+
+<meta property="og:site_name" content="spiritshaman" />
+
+
+
+
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="MacOS python3 import tensorflow1.6.0报错Illegal instruction:4"/>
+<meta name="twitter:description" content="在我使用pip3 install --upgrade tensorflow命令将tensorflow升级到1.6.0后，出现了Illegal instruction:4的报错，在反复卸载安装，安装python虚拟环境无果后，发现是tensorflow 1.6.0版本问题，虽然不明白问题所在，但是版本回退后可以解决此问题。
+{% highlight shell %} $ pip3 uninstall tensorflow $ pip3 install -Iv tensorflow==1.5 {% endhighlight %}
+谢谢您的阅读🙏"/>
+
+
+
+
+<meta itemprop="name" content="MacOS python3 import tensorflow1.6.0报错Illegal instruction:4">
+<meta itemprop="description" content="在我使用pip3 install --upgrade tensorflow命令将tensorflow升级到1.6.0后，出现了Illegal instruction:4的报错，在反复卸载安装，安装python虚拟环境无果后，发现是tensorflow 1.6.0版本问题，虽然不明白问题所在，但是版本回退后可以解决此问题。
+{% highlight shell %} $ pip3 uninstall tensorflow $ pip3 install -Iv tensorflow==1.5 {% endhighlight %}
+谢谢您的阅读🙏">
+
+<meta itemprop="wordCount" content="23">
+<meta itemprop="keywords" content="python,tensorflow,issue fixed," />
+<meta name="referrer" content="no-referrer-when-downgrade" />
+
+    
+    
+    
+    <link href="/bundle.min.css" rel="stylesheet" />
+
+    
+
+    
+
+
+    
+</head>
+
+  <body>
+    <header>
+      <nav>
+  <a
+    href="/"
+    
+    >Home</a
+  >
+
+  <a
+    href=""
+    
+    >Blog</a
+  >
+
+
+  <a href="/index.xml">
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 448 512">
+      
+      <path
+        d="M0 64C0 46.3 14.3 32 32 32c229.8 0 416 186.2 416 416c0 17.7-14.3 32-32 32s-32-14.3-32-32C384 253.6 226.4 96 32 96C14.3 96 0 81.7 0 64zM0 416a64 64 0 1 1 128 0A64 64 0 1 1 0 416zM32 160c159.1 0 288 128.9 288 288c0 17.7-14.3 32-32 32s-32-14.3-32-32c0-123.7-100.3-224-224-224c-17.7 0-32-14.3-32-32s14.3-32 32-32z"
+      />
+    </svg>
+    RSS
+  </a>
+
+</nav>
+
+<h1>MacOS python3 import tensorflow1.6.0报错Illegal instruction:4</h1>
+
+
+    </header>
+    <main>
+      
+  
+  
+  <content>
+    <p>在我使用<code>pip3 install --upgrade tensorflow</code>命令将tensorflow升级到1.6.0后，出现了<code>Illegal instruction:4</code>的报错，在反复卸载安装，安装python虚拟环境无果后，发现是tensorflow 1.6.0版本问题，虽然不明白问题所在，但是版本回退后可以解决此问题。</p>
+<p>{% highlight shell %}
+$ pip3 uninstall tensorflow
+$ pip3 install -Iv tensorflow==1.5
+{% endhighlight %}</p>
+<p>谢谢您的阅读🙏</p>
+
+  </content>
+  
+  
+    <p>
+      
+        <a href="/tags/python/">#python</a>&nbsp;&nbsp;
+      
+        <a href="/tags/tensorflow/">#tensorflow</a>&nbsp;&nbsp;
+      
+        <a href="/tags/issue-fixed/">#issue fixed</a>&nbsp;&nbsp;
+      
+    </p>
+  
+
+    </main>
+    <footer>
+      
+  <span>© 2025 spiritshaman</span>
+
+
+  <span>
+    |
+    Made with
+    <a href="https://github.com/maolonglong/hugo-simple/">Hugo ʕ•ᴥ•ʔ Simple</a>
+  </span>
+
+
+    </footer>
+
+    
+</body>
+</html>

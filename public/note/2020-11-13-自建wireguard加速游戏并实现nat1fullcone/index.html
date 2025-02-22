@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="zh-Hans">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="/images/favicon.png" />
+
+<title>自建 wireguard 加速游戏并实现NAT1(fullcone)&nbsp;|&nbsp;spiritshaman</title>
+<meta
+  name="title"
+  content="自建 wireguard 加速游戏并实现NAT1(fullcone)"
+/>
+<meta
+  name="description"
+  content="1. 前言 参考本文可以实现以下几点需求：
+通过wireguard建立隧道以及给linux内核添加FULLCONE模块，实现一条NAT1的虚假IPLC。 因为wireguard本身会加速所有的流量，所以通过netch配合虚假IPLC局域网中转机的socks5代理服务达到在pc只加速游戏的效果。 @#￥%……&amp;*（ 本文实现的方式主要是通过打隧道的方式实现一个虚假的iplc，也就是说，如果您完全按照我的教程走的话，您需要具备以下的前提：
+一台延迟尚可且具有公网ip的落地vps，毕竟是用于打游戏，延迟相对比较重要，同时FULLCONE需要公网IP支持。 一台中转的服务器，建议是局域网内的一台虚拟机或者一个树莓派。我这边是自己组了一台pve服务器，然后开了个lxc。需要注意的是，当服务开启之后，该中转机的所有流量都会走wireguard。 当然还有一定的linux知识，因为本教程在一些细节方面可能讲的并不是那么全面。 本文会根据不同的需求拆开成本体以及DLC两部分，完成本体就可以实现本文所述功能，但是DLC则提供了一些特殊的功能。比如udp2raw可以帮助wireguard躲避运营商给你时不时的一个断流打击。
+2. 本体 2.1 安装wireguard 本文主要介绍ubuntu的安装方式，其他linux发行版敬请请参考官方教程或者google。
+您需要在落地和中转机器上都安装wireguard，落地机器作为server而中转机器作为client。
+1su - root 2apt update 3# ubuntu 18.04 及以上版本 4apt install wireguard resolvconf -y 5# ubuntu 16.04 及以下版本 6add-apt-repository ppa:wireguard/wireguard 7apt update 8apt install wireguard resolvconf -y 9# 在安装完成之后建议重启一下 10# reboot 2.2 配置wireguard 在落地机器依次输入下列命令:
+1# 开启ipv4流量转发 2echo &#34;net.ipv4.ip_forward = 1&#34; &gt;&gt; /etc/sysctl.conf 3sysctl -p 4 5# 创建并进入WireGuard文件夹 6mkdir -p /etc/wireguard &amp;&amp; chmod 0777 /etc/wireguard 7cd /etc/wireguard 8umask 077 9 10# 生成服务器和客户端密钥对 11wg genkey | tee server_privatekey | wg pubkey &gt; server_publickey 12wg genkey | tee client_privatekey | wg pubkey &gt; client_publickey 通过ifconfig检查主网卡名称，一般会为eth0或者ens3。"
+/>
+<meta
+  name="keywords"
+  content="Tutorials,wireguard,games,"
+/>
+
+  <meta name="author" content="SpiritShaman" />
+
+
+
+
+<meta property="og:title" content="自建 wireguard 加速游戏并实现NAT1(fullcone)" />
+<meta property="og:description" content="1. 前言 参考本文可以实现以下几点需求：
+通过wireguard建立隧道以及给linux内核添加FULLCONE模块，实现一条NAT1的虚假IPLC。 因为wireguard本身会加速所有的流量，所以通过netch配合虚假IPLC局域网中转机的socks5代理服务达到在pc只加速游戏的效果。 @#￥%……&amp;*（ 本文实现的方式主要是通过打隧道的方式实现一个虚假的iplc，也就是说，如果您完全按照我的教程走的话，您需要具备以下的前提：
+一台延迟尚可且具有公网ip的落地vps，毕竟是用于打游戏，延迟相对比较重要，同时FULLCONE需要公网IP支持。 一台中转的服务器，建议是局域网内的一台虚拟机或者一个树莓派。我这边是自己组了一台pve服务器，然后开了个lxc。需要注意的是，当服务开启之后，该中转机的所有流量都会走wireguard。 当然还有一定的linux知识，因为本教程在一些细节方面可能讲的并不是那么全面。 本文会根据不同的需求拆开成本体以及DLC两部分，完成本体就可以实现本文所述功能，但是DLC则提供了一些特殊的功能。比如udp2raw可以帮助wireguard躲避运营商给你时不时的一个断流打击。
+2. 本体 2.1 安装wireguard 本文主要介绍ubuntu的安装方式，其他linux发行版敬请请参考官方教程或者google。
+您需要在落地和中转机器上都安装wireguard，落地机器作为server而中转机器作为client。
+1su - root 2apt update 3# ubuntu 18.04 及以上版本 4apt install wireguard resolvconf -y 5# ubuntu 16.04 及以下版本 6add-apt-repository ppa:wireguard/wireguard 7apt update 8apt install wireguard resolvconf -y 9# 在安装完成之后建议重启一下 10# reboot 2.2 配置wireguard 在落地机器依次输入下列命令:
+1# 开启ipv4流量转发 2echo &#34;net.ipv4.ip_forward = 1&#34; &gt;&gt; /etc/sysctl.conf 3sysctl -p 4 5# 创建并进入WireGuard文件夹 6mkdir -p /etc/wireguard &amp;&amp; chmod 0777 /etc/wireguard 7cd /etc/wireguard 8umask 077 9 10# 生成服务器和客户端密钥对 11wg genkey | tee server_privatekey | wg pubkey &gt; server_publickey 12wg genkey | tee client_privatekey | wg pubkey &gt; client_publickey 通过ifconfig检查主网卡名称，一般会为eth0或者ens3。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/note/2020-11-13-%E8%87%AA%E5%BB%BAwireguard%E5%8A%A0%E9%80%9F%E6%B8%B8%E6%88%8F%E5%B9%B6%E5%AE%9E%E7%8E%B0nat1fullcone/" /><meta property="article:section" content="note" />
+
+<meta property="og:site_name" content="spiritshaman" />
+
+
+
+
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="自建 wireguard 加速游戏并实现NAT1(fullcone)"/>
+<meta name="twitter:description" content="1. 前言 参考本文可以实现以下几点需求：
+通过wireguard建立隧道以及给linux内核添加FULLCONE模块，实现一条NAT1的虚假IPLC。 因为wireguard本身会加速所有的流量，所以通过netch配合虚假IPLC局域网中转机的socks5代理服务达到在pc只加速游戏的效果。 @#￥%……&amp;*（ 本文实现的方式主要是通过打隧道的方式实现一个虚假的iplc，也就是说，如果您完全按照我的教程走的话，您需要具备以下的前提：
+一台延迟尚可且具有公网ip的落地vps，毕竟是用于打游戏，延迟相对比较重要，同时FULLCONE需要公网IP支持。 一台中转的服务器，建议是局域网内的一台虚拟机或者一个树莓派。我这边是自己组了一台pve服务器，然后开了个lxc。需要注意的是，当服务开启之后，该中转机的所有流量都会走wireguard。 当然还有一定的linux知识，因为本教程在一些细节方面可能讲的并不是那么全面。 本文会根据不同的需求拆开成本体以及DLC两部分，完成本体就可以实现本文所述功能，但是DLC则提供了一些特殊的功能。比如udp2raw可以帮助wireguard躲避运营商给你时不时的一个断流打击。
+2. 本体 2.1 安装wireguard 本文主要介绍ubuntu的安装方式，其他linux发行版敬请请参考官方教程或者google。
+您需要在落地和中转机器上都安装wireguard，落地机器作为server而中转机器作为client。
+1su - root 2apt update 3# ubuntu 18.04 及以上版本 4apt install wireguard resolvconf -y 5# ubuntu 16.04 及以下版本 6add-apt-repository ppa:wireguard/wireguard 7apt update 8apt install wireguard resolvconf -y 9# 在安装完成之后建议重启一下 10# reboot 2.2 配置wireguard 在落地机器依次输入下列命令:
+1# 开启ipv4流量转发 2echo &#34;net.ipv4.ip_forward = 1&#34; &gt;&gt; /etc/sysctl.conf 3sysctl -p 4 5# 创建并进入WireGuard文件夹 6mkdir -p /etc/wireguard &amp;&amp; chmod 0777 /etc/wireguard 7cd /etc/wireguard 8umask 077 9 10# 生成服务器和客户端密钥对 11wg genkey | tee server_privatekey | wg pubkey &gt; server_publickey 12wg genkey | tee client_privatekey | wg pubkey &gt; client_publickey 通过ifconfig检查主网卡名称，一般会为eth0或者ens3。"/>
+
+
+
+
+<meta itemprop="name" content="自建 wireguard 加速游戏并实现NAT1(fullcone)">
+<meta itemprop="description" content="1. 前言 参考本文可以实现以下几点需求：
+通过wireguard建立隧道以及给linux内核添加FULLCONE模块，实现一条NAT1的虚假IPLC。 因为wireguard本身会加速所有的流量，所以通过netch配合虚假IPLC局域网中转机的socks5代理服务达到在pc只加速游戏的效果。 @#￥%……&amp;*（ 本文实现的方式主要是通过打隧道的方式实现一个虚假的iplc，也就是说，如果您完全按照我的教程走的话，您需要具备以下的前提：
+一台延迟尚可且具有公网ip的落地vps，毕竟是用于打游戏，延迟相对比较重要，同时FULLCONE需要公网IP支持。 一台中转的服务器，建议是局域网内的一台虚拟机或者一个树莓派。我这边是自己组了一台pve服务器，然后开了个lxc。需要注意的是，当服务开启之后，该中转机的所有流量都会走wireguard。 当然还有一定的linux知识，因为本教程在一些细节方面可能讲的并不是那么全面。 本文会根据不同的需求拆开成本体以及DLC两部分，完成本体就可以实现本文所述功能，但是DLC则提供了一些特殊的功能。比如udp2raw可以帮助wireguard躲避运营商给你时不时的一个断流打击。
+2. 本体 2.1 安装wireguard 本文主要介绍ubuntu的安装方式，其他linux发行版敬请请参考官方教程或者google。
+您需要在落地和中转机器上都安装wireguard，落地机器作为server而中转机器作为client。
+1su - root 2apt update 3# ubuntu 18.04 及以上版本 4apt install wireguard resolvconf -y 5# ubuntu 16.04 及以下版本 6add-apt-repository ppa:wireguard/wireguard 7apt update 8apt install wireguard resolvconf -y 9# 在安装完成之后建议重启一下 10# reboot 2.2 配置wireguard 在落地机器依次输入下列命令:
+1# 开启ipv4流量转发 2echo &#34;net.ipv4.ip_forward = 1&#34; &gt;&gt; /etc/sysctl.conf 3sysctl -p 4 5# 创建并进入WireGuard文件夹 6mkdir -p /etc/wireguard &amp;&amp; chmod 0777 /etc/wireguard 7cd /etc/wireguard 8umask 077 9 10# 生成服务器和客户端密钥对 11wg genkey | tee server_privatekey | wg pubkey &gt; server_publickey 12wg genkey | tee client_privatekey | wg pubkey &gt; client_publickey 通过ifconfig检查主网卡名称，一般会为eth0或者ens3。">
+
+<meta itemprop="wordCount" content="615">
+<meta itemprop="keywords" content="Tutorials,wireguard,games," />
+<meta name="referrer" content="no-referrer-when-downgrade" />
+
+    
+    
+    
+    <link href="/bundle.min.css" rel="stylesheet" />
+
+    
+
+    
+
+
+    
+</head>
+
+  <body>
+    <header>
+      <nav>
+  <a
+    href="/"
+    
+    >Home</a
+  >
+
+  <a
+    href=""
+    
+    >Blog</a
+  >
+
+
+  <a href="/index.xml">
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 448 512">
+      
+      <path
+        d="M0 64C0 46.3 14.3 32 32 32c229.8 0 416 186.2 416 416c0 17.7-14.3 32-32 32s-32-14.3-32-32C384 253.6 226.4 96 32 96C14.3 96 0 81.7 0 64zM0 416a64 64 0 1 1 128 0A64 64 0 1 1 0 416zM32 160c159.1 0 288 128.9 288 288c0 17.7-14.3 32-32 32s-32-14.3-32-32c0-123.7-100.3-224-224-224c-17.7 0-32-14.3-32-32s14.3-32 32-32z"
+      />
+    </svg>
+    RSS
+  </a>
+
+</nav>
+
+<h1>自建 wireguard 加速游戏并实现NAT1(fullcone)</h1>
+
+
+    </header>
+    <main>
+      
+  
+  
+  <content>
+    <h2 id="1-前言">1. 前言</h2>
+<p>参考本文可以实现以下几点需求：</p>
+<ol>
+<li>通过wireguard建立隧道以及给linux内核添加FULLCONE模块，实现一条NAT1的<strong>虚假</strong>IPLC。</li>
+<li>因为wireguard本身会加速所有的流量，所以通过<code>netch</code>配合<strong>虚假</strong><code>IPLC</code>局域网中转机的<code>socks5</code>代理服务达到在pc只加速游戏的效果。</li>
+<li>@#￥%……&amp;*（</li>
+</ol>
+<p>本文实现的方式主要是通过打隧道的方式实现一个<strong>虚假</strong>的<code>iplc</code>，也就是说，如果您完全按照我的教程走的话，您需要具备以下的前提：</p>
+<ol>
+<li>一台延迟尚可且具有公网ip的落地vps，毕竟是用于打游戏，延迟相对比较重要，同时FULLCONE需要公网IP支持。</li>
+<li>一台中转的服务器，建议是局域网内的一台虚拟机或者一个树莓派。我这边是自己组了一台<code>pve</code>服务器，然后开了个lxc。需要注意的是，当服务开启之后，该中转机的所有流量都会走<code>wireguard</code>。</li>
+<li>当然还有一定的linux知识，因为本教程在一些细节方面可能讲的并不是那么全面。</li>
+</ol>
+<p>本文会根据不同的需求拆开成<a href="#2-%E6%9C%AC%E4%BD%93">本体</a>以及<a href="#3-dlc">DLC</a>两部分，完成<strong>本体</strong>就可以实现本文所述功能，但是<strong>DLC</strong>则提供了一些特殊的功能。比如<code>udp2raw</code>可以帮助<code>wireguard</code>躲避运营商给你时不时的一个断流打击。</p>
+<h2 id="2-本体">2. 本体</h2>
+<h3 id="21-安装wireguard">2.1 安装wireguard</h3>
+<p>本文主要介绍<code>ubuntu</code>的安装方式，其他linux发行版敬请请参考<a href="https://www.wireguard.com/install/">官方教程</a>或者google。</p>
+<p>您需要在落地和中转机器上都安装wireguard，落地机器作为<strong>server</strong>而中转机器作为<strong>client</strong>。</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 1</span><span>su - root
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 2</span><span>apt update
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 3</span><span><span style="color:#6c7086;font-style:italic"># ubuntu 18.04 及以上版本</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 4</span><span>apt install wireguard resolvconf -y
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 5</span><span><span style="color:#6c7086;font-style:italic"># ubuntu 16.04 及以下版本</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 6</span><span>add-apt-repository ppa:wireguard/wireguard
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 7</span><span>apt update
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 8</span><span>apt install wireguard resolvconf -y
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 9</span><span><span style="color:#6c7086;font-style:italic"># 在安装完成之后建议重启一下</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">10</span><span><span style="color:#6c7086;font-style:italic"># reboot</span></span></span></code></pre></div>
+<h3 id="22-配置wireguard">2.2 配置wireguard</h3>
+<p>在<strong>落地机器</strong>依次输入下列命令:</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 1</span><span><span style="color:#6c7086;font-style:italic"># 开启ipv4流量转发</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 2</span><span><span style="color:#89dceb">echo</span> <span style="color:#a6e3a1">&#34;net.ipv4.ip_forward = 1&#34;</span> &gt;&gt; /etc/sysctl.conf
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 3</span><span>sysctl -p
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 4</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 5</span><span><span style="color:#6c7086;font-style:italic"># 创建并进入WireGuard文件夹</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 6</span><span>mkdir -p /etc/wireguard <span style="color:#89dceb;font-weight:bold">&amp;&amp;</span> chmod <span style="color:#fab387">0777</span> /etc/wireguard
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 7</span><span><span style="color:#89dceb">cd</span> /etc/wireguard
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 8</span><span><span style="color:#89dceb">umask</span> <span style="color:#fab387">077</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 9</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">10</span><span><span style="color:#6c7086;font-style:italic"># 生成服务器和客户端密钥对</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">11</span><span>wg genkey | tee server_privatekey | wg pubkey &gt; server_publickey
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">12</span><span>wg genkey | tee client_privatekey | wg pubkey &gt; client_publickey</span></span></code></pre></div>
+<p>通过<code>ifconfig</code>检查主网卡名称，一般会为<code>eth0</code>或者<code>ens3</code>。</p>
+<p>生成server配置文件<code>/etc/wireguard/wg0.conf</code>：</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 1</span><span><span style="color:#6c7086;font-style:italic"># 重要！如果名字不是eth0, 以下PostUp和PostDown处里面的eth0替换成自己服务器显示的名字</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 2</span><span><span style="color:#6c7086;font-style:italic"># ListenPort为端口号，可以自己设置想使用的数字</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 3</span><span><span style="color:#6c7086;font-style:italic"># 以下内容一次性粘贴执行，不要分行执行</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 4</span><span><span style="color:#89dceb">echo</span> <span style="color:#a6e3a1">&#34;
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 5</span><span><span style="color:#a6e3a1">[Interface]
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 6</span><span><span style="color:#a6e3a1">  PrivateKey = </span><span style="color:#cba6f7">$(</span>cat server_privatekey<span style="color:#cba6f7">)</span><span style="color:#a6e3a1">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 7</span><span><span style="color:#a6e3a1">  Address = 10.0.0.1/24
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 8</span><span><span style="color:#a6e3a1">  PostUp   = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 9</span><span><span style="color:#a6e3a1">  PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">10</span><span><span style="color:#a6e3a1">  ListenPort = 52540
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">11</span><span><span style="color:#a6e3a1">  DNS = 8.8.8.8
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">12</span><span><span style="color:#a6e3a1">  MTU = 1200
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">13</span><span><span style="color:#a6e3a1">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">14</span><span><span style="color:#a6e3a1">[Peer]
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">15</span><span><span style="color:#a6e3a1">  PublicKey = </span><span style="color:#cba6f7">$(</span>cat client_publickey<span style="color:#cba6f7">)</span><span style="color:#a6e3a1">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">16</span><span><span style="color:#a6e3a1">  AllowedIPs = 10.0.0.2/32 &#34;</span> &gt; wg0.conf</span></span></code></pre></div>
+<p>生成client配置文件<code>/etc/wireguard/client.conf</code>:</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 1</span><span><span style="color:#6c7086;font-style:italic"># Endpoint是自己服务器ip和服务端配置文件中设置的端口号，自己在本地编辑好再粘贴到SSH里</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 2</span><span><span style="color:#6c7086;font-style:italic"># 以下内容一次性粘贴执行，不要分行执行</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 3</span><span><span style="color:#89dceb">echo</span> <span style="color:#a6e3a1">&#34;
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 4</span><span><span style="color:#a6e3a1">[Interface]
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 5</span><span><span style="color:#a6e3a1">  PrivateKey = </span><span style="color:#cba6f7">$(</span>cat client_privatekey<span style="color:#cba6f7">)</span><span style="color:#a6e3a1">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 6</span><span><span style="color:#a6e3a1">  Address = 10.0.0.2/24
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 7</span><span><span style="color:#a6e3a1">  DNS = 8.8.8.8
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 8</span><span><span style="color:#a6e3a1">  MTU = 1200
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 9</span><span><span style="color:#a6e3a1">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">10</span><span><span style="color:#a6e3a1">[Peer]
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">11</span><span><span style="color:#a6e3a1">  PublicKey = </span><span style="color:#cba6f7">$(</span>cat server_publickey<span style="color:#cba6f7">)</span><span style="color:#a6e3a1">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">12</span><span><span style="color:#a6e3a1">  Endpoint = 1.2.3.4:52540
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">13</span><span><span style="color:#a6e3a1">  AllowedIPs = 0.0.0.0/0, ::0/0
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">14</span><span><span style="color:#a6e3a1">  PersistentKeepalive = 25 &#34;</span> &gt; client.conf</span></span></code></pre></div>
+<p>此时需要将<code>clinet.conf</code>的内容复制到<strong>中转机器</strong>的<code>/etc/wireguard/wg0.conf</code>里面。</p>
+<p>然后在两台机器上分别启动wireguard，wireguard的部分命令如下：</p>
+<p><strong>请特别注意，中转机器开启wg之后，无法通过ssh访问，需要从落地机器访问回来</strong></p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span><span style="color:#6c7086;font-style:italic"># 启动WireGuard</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">2</span><span>wg-quick up wg0
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">3</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">4</span><span><span style="color:#6c7086;font-style:italic"># 停止WireGuard</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">5</span><span>wg-quick down wg0
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">6</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">7</span><span><span style="color:#6c7086;font-style:italic"># 查看WireGuard运行状态</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">8</span><span>wg</span></span></code></pre></div>
+<p>到此时，一个<strong>虚假</strong>的<code>IPLC</code>了。</p>
+<p>可以在中转机器执行如下命令进行测试：</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span>curl ifconfig.me
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">2</span><span>&gt; 1.2.3.4 <span style="color:#6c7086;font-style:italic"># 注意此处显示的应该是你的落地机器ip</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">3</span><span>ping 10.0.0.1
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">4</span><span><span style="color:#6c7086;font-style:italic"># 正常应该是可以ping通的</span></span></span></code></pre></div>
+<h3 id="23-开启fullcone-nat">2.3 开启FULLCONE NAT</h3>
+<p>虽然此时<code>IPLC</code>已经打通，但是此时的NAT类型并不是NAT1，而是NAT4：Symmetric NAT。</p>
+<p>（可以通过<a href="#31-pystun">pystun</a>验证，非必须步骤)</p>
+<p>这个原因是因为</p>
+<blockquote>
+<p>TLDR: Linux内核树上未实现真正意义上的Full Cone NAT，Linux的 SNAT/MASQUERADE（以iptables的配置为例）均是Symmetric NAT。</p>
+</blockquote>
+<p>所以，此时我们要从linux的内核下手，实现FULLCONE。</p>
+<p>安装完整的内核：</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span>apt install linux-image-<span style="color:#cba6f7">$(</span>uname -r<span style="color:#cba6f7">)</span></span></span></code></pre></div>
+<p>安装一些依赖：（一般需要的都装好了，不通的发行版可能需求不一样 ，缺什么装什么就好了）</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span>apt install gcc autoconf autogen libtool pkg-config libgmp3-dev -y</span></span></code></pre></div>
+<p>下载一些软件的源码:</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span><span style="color:#89dceb">cd</span> ~
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">2</span><span>mkdir fullcone
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">3</span><span><span style="color:#89dceb">cd</span> fullcone
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">4</span><span>git clone git://git.netfilter.org/libmnl
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">5</span><span>git clone git://git.netfilter.org/libnftnl.git
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">6</span><span>git clone  git://git.netfilter.org/iptables.git
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">7</span><span>git clone https://github.com/Chion82/netfilter-full-cone-nat.git</span></span></code></pre></div>
+<h4 id="231-编译libmnl">2.3.1 编译libmnl</h4>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span><span style="color:#89dceb">cd</span> ~/fullcone/libmnl
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">2</span><span>sh autogen.sh
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">3</span><span>./configure
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">4</span><span>make
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">5</span><span>make install</span></span></code></pre></div>
+<p>然后:</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span>whereis libmnl
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">2</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">3</span><span>&gt; libmnl: /usr/local/lib/libmnl.so /usr/local/lib/libmnl.la /usr/include/libmnl
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">4</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">5</span><span>ldd /usr/local/lib/libmnl.so</span></span></code></pre></div>
+<h4 id="232-编译libnftnl">2.3.2 编译libnftnl</h4>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span><span style="color:#89dceb">cd</span> ~/fullcone/libnftnl
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">2</span><span>sh autogen.sh
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">3</span><span>./configure
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">4</span><span>make
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">5</span><span>make install</span></span></code></pre></div>
+<h4 id="233-编译和临时启用netfilter-full-cone-nat">2.3.3 编译和临时启用netfilter-full-cone-nat</h4>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span><span style="color:#89dceb">cd</span> ~/fullcone/netfilter-full-cone-nat
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">2</span><span>make
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">3</span><span>insmod xt_FULLCONENAT.ko
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">4</span><span><span style="color:#6c7086;font-style:italic">#如果编译模块报错，请安装kernel-devel,载入模块报错Unknown symbol in module ，先modprobe nf_nat 再载入模块。</span></span></span></code></pre></div>
+<h4 id="234-编译和替换iptables">2.3.4 编译和替换iptables</h4>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 1</span><span><span style="color:#89dceb">cd</span> ~/fullcone/iptables/
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 2</span><span>cp ~/fullcone/netfilter-full-cone-nat/libipt_FULLCONENAT.c ~/fullcone/iptables/extensions/
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 3</span><span>ln -sfv /usr/sbin/xtables-multi /usr/bin/iptables-xml
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 4</span><span>./autogen.sh
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 5</span><span><span style="color:#f5e0dc">PKG_CONFIG_PATH</span><span style="color:#89dceb;font-weight:bold">=</span>/usr/local/lib/pkgconfig
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 6</span><span><span style="color:#89dceb">export</span> PKG_CONFIG_PATH
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 7</span><span>./configure
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 8</span><span>make
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c"> 9</span><span>make install
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">10</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">11</span><span><span style="color:#6c7086;font-style:italic">#先关闭iptables</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">12</span><span>systemctl stop iptables
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">13</span><span><span style="color:#6c7086;font-style:italic">#进入相应目录，并覆盖相关文件</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">14</span><span><span style="color:#89dceb">cd</span> /usr/local/sbin
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">15</span><span>cp /usr/local/sbin/iptables /sbin/   
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">16</span><span>cp /usr/local/sbin/iptables-restore /sbin/
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">17</span><span>cp /usr/local/sbin/iptables-save /sbin/</span></span></code></pre></div>
+<h4 id="235-检验fullcone">2.3.5 检验fullcone</h4>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span>iptables -t nat -A POSTROUTING -o eth0 -j FULLCONENAT <span style="color:#6c7086;font-style:italic"># 没有错误</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">2</span><span>lsmod | grep xt_FULLCONENAT <span style="color:#6c7086;font-style:italic"># 有结果</span></span></span></code></pre></div>
+<p><a href="https://imgchr.com/i/Dp5hIP"><img src="https://s3.ax1x.com/2020/11/13/Dp5hIP.png" alt="正常结果"></a></p>
+<h4 id="236-开启自动加载">2.3.6 开启自动加载</h4>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span>mv ~/fullcone/netfilter-full-cone-nat/xt_FULLCONENAT.ko  /lib/modules/<span style="color:#cba6f7">$(</span>uname -r<span style="color:#cba6f7">)</span>/
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">2</span><span>depmod</span></span></code></pre></div>
+<p>新建编辑<code>/etc/modules-load.d/fullconenat.conf</code>:</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span>xt_FULLCONENAT</span></span></code></pre></div>
+<p>验证:</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span>reboot
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">2</span><span>lsmod | grep xt_FULLCONENAT</span></span></code></pre></div>
+<p><em>ps</em>:</p>
+<p>此处如果没有结果，可能是内核更新了，请重新执行</p>
+
+
+
+
+
+
+<pre tabindex="0"><code class="language-shel" data-lang="shel">cd ~/fullcone/netfilter-full-cone-nat
+make
+mv ~/fullcone/netfilter-full-cone-nat/xt_FULLCONENAT.ko  /lib/modules/$(uname -r)/
+depmod</code></pre>
+<p>然后重启即可</p>
+<h3 id="24-修改wireguard配置">2.4 修改wireguard配置</h3>
+<p>在落地机器修改<code>/etc/wireguard/wg0.conf</code>:</p>
+<p>将<code>postup</code> 尾部的<code>iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</code>修改为<code>iptables -t nat -A POSTROUTING -o eth0 -j FULLCONENAT</code></p>
+<p>将<code>postdown</code>尾部的<code>iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE</code>修改为<code>iptables -t nat -D POSTROUTING -o eth0 -j FULLCONENAT</code></p>
+<p>重启落地机器的wireguard网卡:</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span>wg-quick down wg0
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">2</span><span>wg-quick up wg0</span></span></code></pre></div>
+<p>此时我们已经实现了一个具有NAT1的<strong>虚假</strong>的<code>IPLC</code>。</p>
+<h3 id="25-加速游戏">2.5 加速游戏</h3>
+<p>本文用到的游戏加速软件为<a href="https://github.com/NetchX/Netch">netch</a>，netch支持常见的的远程代理协议，具体在其github有提供。</p>
+<p>至于那些@#￥%……&amp;……的■■■的■■■■，本文暂且不表，各位自由发挥。</p>
+<p>我们只需要将这些服务搭载在局域网的中转机器上， 然后通过PC的netch软件连接，就可以实现nat1的游戏加速了。</p>
+<p>唯一需要注意的一点是：搭建的这个服务需要支持完整的udp，否则之前的一切努力都白费了。</p>
+<p>当然搭建单纯的socks5服务(比如:dante-server)也是可以的，但是由于本人遇到一些奇怪的问题，所以此处也就不贴教程了。</p>
+<h2 id="3-dlc">3. DLC</h2>
+<h3 id="31-pystun">3.1 pystun</h3>
+<p>pystun是一个可以检测linux服务器nat类型的工具。</p>
+<p>要安装pystun需要借助于python的包管理工具<code>pip</code>。</p>
+<p>执行下面命令安装<code>pip</code>:</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span>curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">2</span><span>python get-pip.py</span></span></code></pre></div>
+<p>通过<code>pip</code>安装pystun:</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span>pip install pystun3</span></span></code></pre></div>
+<p>执行<code>pystun3</code>应该会得到如下结果:</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span>NAT Type: Full Cone
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">2</span><span>External IP: your ip
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">3</span><span>External Port: Random Port</span></span></code></pre></div>
+<p>其中NAT Type对应了你的机器NAT类型。具体NAT类型的分别敬请google。在本文中想要的到最终结果为NAT1，即FULLCONE。</p>
+<h3 id="32-udp2raw">3.2 udp2raw</h3>
+<p>因为wireguard使用udp传输，电信经常在我玩的热火朝天的时候给我断流，所以我需要在wireguard外面套上一层udp2raw。</p>
+<p>具体实现步骤如下：</p>
+<p>首先前往<a href="https://github.com/wangyu-/udp2raw-tunnel/releases">下载地址</a>下载udp2raw，然后在落地机器开启server：</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span><span style="color:#6c7086;font-style:italic">#记得更改udp2raw的路径以及password</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">2</span><span>nohup path/to/udp2raw -s -l0.0.0.0:9898 -r 127.0.0.1:52540 --raw-mode faketcp -a -k password &gt;/root/app/logs/udp2raw.log 2&gt;&amp;1 &amp;</span></span></code></pre></div>
+<p>然后在中转机器开启client:</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span><span style="color:#6c7086;font-style:italic"># 因为后续要更改wireguard的endpoint到中转机器的udp2raw,所以要先添加转发规则</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">2</span><span>ip route add 1.2.3.4 via <span style="color:#cba6f7">$(</span>ip route | awk <span style="color:#a6e3a1">&#39;$1==&#34;default&#34; {print $3}&#39;</span><span style="color:#cba6f7">)</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">3</span><span><span style="color:#6c7086;font-style:italic"># 记得修改udp2raw的路径、ip和password</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">4</span><span>nohup path/to/udp2raw -c -r 1.2.3.4:9898 -l 127.0.0.1:52540 --raw-mode faketcp -k password &gt;/root/udp2raw.log 2&gt;&amp;<span style="color:#fab387">1</span> &amp;</span></span></code></pre></div>
+<p>修改中转机器的wireguard设置<code>/etc/wireguard/wg0.conf</code></p>
+<p>将<code>Endpoint</code>修改为<code>127.0.0.1:52540</code></p>
+<p>重启wireguard</p>
+
+
+
+
+
+
+<div class="highlight"><pre tabindex="0" style="color:#cdd6f4;background-color:#1e1e2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">1</span><span>wg-quick down wg0
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f849c">2</span><span>wg-quick up wg0</span></span></code></pre></div>
+<p>至此完成了将wg伪装为tcp的过程，对于丢包严重的朋友，还可以使用udp2raw作者开发的<a href="https://github.com/wangyu-/UDPspeeder">udpspeeder</a>，具体使用方法请参考其github，关于udp2raw的一些具体用法也有介绍。</p>
+<h2 id="鸣谢">鸣谢</h2>
+<p><a href="https://blog.chionlab.moe/2018/02/09/full-cone-nat-with-linux/">从DNAT到netfilter内核子系统，浅谈Linux的Full Cone NAT实现</a></p>
+<p><a href="https://www.jianshu.com/p/88e7cd6a0c95">Centos 7当网关启用Fullcone nat</a></p>
+<p><a href="https://isabelcmdcosta.medium.com/installing-nftables-from-sources-on-debian-eb8c24bbc5ca">Installing nftables from sources on Debian</a></p>
+<p><a href="https://github.com/NetchX/Netch">netch</a></p>
+<p><a href="https://github.com/wangyu-/udp2raw-tunnel">udp2raw-tunnel</a></p>
+<p><a href="https://10101.io/2018/11/10/wireguard">WireGuard 搭建和使用折腾小记</a></p>
+
+  </content>
+  
+  
+    <p>
+      
+        <a href="/tags/tutorials/">#Tutorials</a>&nbsp;&nbsp;
+      
+        <a href="/tags/wireguard/">#wireguard</a>&nbsp;&nbsp;
+      
+        <a href="/tags/games/">#games</a>&nbsp;&nbsp;
+      
+    </p>
+  
+
+    </main>
+    <footer>
+      
+  <span>© 2025 spiritshaman</span>
+
+
+  <span>
+    |
+    Made with
+    <a href="https://github.com/maolonglong/hugo-simple/">Hugo ʕ•ᴥ•ʔ Simple</a>
+  </span>
+
+
+    </footer>
+
+    
+</body>
+</html>
