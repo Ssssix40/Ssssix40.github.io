@@ -53,7 +53,7 @@ ignoreErrors = ["error-disable-taxonomy"]
   copyright = "Copyright © spiritshaman (CC BY 4.0)"
   enableGitalk = true
 
-  [gitalk]
+  [Gitalk]
     clientID = "ee9bcc26419cd9cf2d32" # Your client ID
     clientSecret = "8c187c66030365076c4369040ec68f409ba21c29" # Your client secret
     repo = "Ssssix40.github.io" # The repo to store comments
