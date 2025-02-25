@@ -12,24 +12,24 @@ lang: zh-Hans
 
 ### 安装和配置virtualenv and virtualenvwrapper
 
-{% highlight shell %}
+```shell
 $ pip install virtualenv virtualenvwrapper
-{% endhighlight %}
+```
 
 安装完成之后需要更新`~/.bash_profile`文件
 
-{% highlight shell %}
+```shell
 $ vim ~/.bash_profile
-{% endhighlight %}
+```
 
 添加如下内容
 
-{% highlight shell %}
+```shell
 # Virtualenv/VirtualenvWrapper
 source /Library/Frameworks/Python.framework/Versions/3.6/bin/virtualenvwrapper.sh
 VIRTUALENVWRAPPER_PYTHON="/Library/Frameworks/Python.framework/Versions/3.6/bin/python3"
 export VIRTUALENVWRAPPER_PYTHON
-{% endhighlight %}
+```
 
 ![vim界面](http://ww1.sinaimg.cn/large/005L13Yhgy1fpj37lod4fj30fr09hmxy.jpg)
 
@@ -42,9 +42,9 @@ export VIRTUALENVWRAPPER_PYTHON
 ## usage
 
 ### 新建虚拟环境
-{% highlight shell %}
+```shell
 mkvirtualenv env_name -p python3 --system-site-packages
-{% endhighlight %}
+```
 
 *PS:如非需要，此处不建议添加`--system-site-packages`，改参数后文有介绍*
 
@@ -52,7 +52,7 @@ mkvirtualenv env_name -p python3 --system-site-packages
 
 ### 其他使用指令
 
-{% highlight text %}
+```text
 
 workon:列出虚拟环境列表
 
@@ -64,20 +64,20 @@ rmvirtualenv  [envname]:删除虚拟环境
 
 deactivate: 离开虚拟环境
 
-{% endhighlight %}
+```
 
 ### 新建虚拟环境时virtualenv常用参数
 
-{% highlight text %}
+```text
 -p PYTHON_EXE, --python=PYTHON_EXE  # 选择python版本
 --system-site-packages # 为虚拟环境添加系统本身拥有的包
-{% endhighlight %}
+```
 
 ### 测试
 
-{% highlight shell %}
+```shell
 workon env_name
-{% endhighlight %}
+```
 
 ![测试](http://ww1.sinaimg.cn/large/005L13Yhgy1fpj43wuarwj30fu0a6t9a.jpg)
 

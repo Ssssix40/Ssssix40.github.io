@@ -11,6 +11,8 @@ author = "spiritshaman"
 
 languageCode = "zh-CN"
 
+pygmentsstyle = "dracula"
+
 # Generate a nice robots.txt for SEO
 enableRobotsTXT = true
 
