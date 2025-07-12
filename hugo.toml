@@ -1,73 +1,89 @@
-# Base URL used when generating links to your pages
-# Set to the URL for your site
+# Basic config
 baseURL = "https://www.spiritshaman.me"
-
-# The name of this wonderful theme ;-).
-theme = 'hugo-bearblog'
-
-# Basic metadata configuration for your blog.
-title = "SpiritShaman's Blog"
-author = "spiritshaman"
-
-languageCode = "zh-CN"
-
-pygmentsstyle = "dracula"
+theme = "hugo-bearcub"
+copyright = "Copyright © spiritshaman (CC BY 4.0)"
+defaultContentLanguage = "zh"
 
 # Generate a nice robots.txt for SEO
 enableRobotsTXT = true
 
-# Generate "Bearblog"-like URLs !only!, see https://bearblog.dev/.
-disableKinds = ["taxonomy"]
-ignoreErrors = ["error-disable-taxonomy"]
-[permalinks]
-  blog = "/:slug/"
-  tags = "/blog/:slug"
+# Menu configuration
+[menu]
+  [[menu.main]]
+    name = "Blog"
+    url = "/blog/"
+    weight = 1
 
-[services]
-  [services.rss]
-    limit = 42
+# Setup syntax highlighting without inline styles. For more information about
+# why you'd want to avoid inline styles, see
+# https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/style-src#unsafe_inline_styles
+[markup]
+  [markup.highlight]
+    lineNos = true
+    lineNumbersInTable = false
+    # This allows Bear Cub to use a variation of Dracula that is more accessible
+    # to people with poor eyesight. For more information about color contrast
+    # and accessibility, see https://web.dev/color-and-contrast-accessibility/
+    noClasses = false
+
+# Multilingual mode config. More for information about how to setup translation,
+# see https://gohugo.io/content-management/multilingual/
+[languages]
+  [languages.zh]
+    title = "SpiritShaman's Blog"
+    languageName = "zh-CN 🇨🇳"
+    LanguageCode = "zh-CN"
+    contentDir = "content"
+    [languages.zh.params]
+      madeWith = "Made with [Bear Cub](https://github.com/clente/hugo-bearcub)"
 
 [params]
-  # The "description" of your website. This is used in the meta data of your generated html.
+  # The description of your website
   description = "Hugo + Bear = :heart:"
 
-  # The path to your "favicon". This should be a square (at least 32px x 32px) png-file.
-  # Hint: It's good practise to also put a "favicon.ico"-file into your "static"-folder.
+  # The path to your favicon
   favicon = "images/favicon.png"
 
-  # These "images" are used for the structured data templates. This will show up, when
-  # services like Twitter or Slack want to generate a preview of a link to your site.
-  # See https://gohugo.io/templates/internal#twitter-cards and
-  # https://gohugo.io/templates/internal#open-graph.
-  images = ["images/share.png"]
+  # These images will show up when services want to generate a preview of a link
+  # to your site. Ignored if `generateSocialCard = true`. For more information
+  # about previews, see https://gohugo.io/templates/internal#twitter-cards and
+  # https://gohugo.io/templates/internal#open-graph
+  images = ["images/share.webp"]
 
-  # Another "title" :-). This one is used as the site_name on the Hugo's internal
-  # opengraph structured data template.
-  # See https://ogp.me/ and https://gohugo.io/templates/internal#open-graph.
+  # This title is used as the site_name on the Hugo's internal opengraph
+  # structured data template
   title = "SpiritShaman's Blog"
 
-  # This theme will, by default, inject a made-with-line at the bottom of the page.
-  # You can turn it off, but we would really appreciate if you don’t :-).
-  # hideMadeWithLine = true
+  # Dates are displayed following the format below. For more information about
+  # formatting, see https://gohugo.io/functions/format/
+  dateFormat = "2006-01-02"
 
-  # By default, this theme displays dates with a format like "02 Jan, 2006", but
-  # you can customize it by setting the `dateFormat` param in your site's config
-  # file. See [Hugo's Format function docs](https://gohugo.io/functions/format/)
-  # for details. An example TOML config that uses [ISO
-  # 8601](https://en.wikipedia.org/wiki/ISO_8601) format:
-  # dateFormat = "2006-01-02"
-  copyright = "Copyright © spiritshaman (CC BY 4.0)"
-  enableGitalk = true
+  # If your blog is multilingual but you haven't translated a page, this theme
+  # will create a disabled link. By setting `hideUntranslated` to true, you can
+  # have the theme simply not show any link
+  hideUntranslated = false
 
-[params.Gitalk]
-  clientID = "ee9bcc26419cd9cf2d32" # Your client ID
-  clientSecret = "8c187c66030365076c4369040ec68f409ba21c29" # Your client secret
-  repo = "Ssssix40.github.io" # The repo to store comments
-  owner = "Ssssix40" # Your GitHub ID
-  admin= "Ssssix40" # Required. Github repository owner and collaborators. (Users who having write access to this repository)
-  id= "location.pathname" # The unique id of the page.
-  labels= "gitalk" # Github issue labels. If you used to use Gitment, you can change it
-  perPage= 15 # Pagination size, with maximum 100.
-  pagerDirection= "last" # Comment sorting direction, available values are 'last' and 'first'.
-  createIssueManually= false # If it is 'false', it is auto to make a Github issue when the administrators login.
-  distractionFreeMode= false # Enable hot key (cmd|ctrl + enter) submit comment.
+  # (EXPERIMENTAL) This theme has two options for its CSS styles: "original" and
+  # "herman". The former is what you see on Bear Cub's demo (an optimized
+  # version of Hugo Bear Blog), while the latter has a more modern look based on
+  # Herman Martinus's version of the Blogster Minimal theme for Astro.
+  themeStyle = "original"
+
+  # (EXPERIMENTAL) This theme is capable of dynamically generating social cards
+  # for posts that don't have `images` defined in their front matter; By setting
+  # `generateSocialCard` to false, you can prevent this behavior. For more
+  # information see layouts/partials/social_card.html
+  generateSocialCard = true
+
+  # Social media. Delete any item you aren't using to make sure it won't show up
+  # in your website's metadata.
+  [params.social]
+    twitter = "Ssssix40" # Twitter handle (without '@')
+  #  facebook_admin = "0000000000" # Facebook Page Admin ID
+
+  # Author metadata. This is mostly used for the RSS feed of your site, but the
+  # email is also added to the footer of each post. You can hide the "reply to"
+  # link by using a `hideReply` param in front matter.
+  [params.author]
+    name = "SpiritShaman" # Your name as shown in the RSS feed metadata
+    email = "since640@gmail.com" # Added to the footer so readers can reply to posts

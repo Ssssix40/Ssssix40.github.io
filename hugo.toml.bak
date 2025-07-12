@@ -1,0 +1,73 @@
+# Base URL used when generating links to your pages
+# Set to the URL for your site
+baseURL = "https://www.spiritshaman.me"
+
+# The name of this wonderful theme ;-).
+theme = 'hugo-bearblog'
+
+# Basic metadata configuration for your blog.
+title = "SpiritShaman's Blog"
+author = "spiritshaman"
+
+languageCode = "zh-CN"
+
+pygmentsstyle = "dracula"
+
+# Generate a nice robots.txt for SEO
+enableRobotsTXT = true
+
+# Generate "Bearblog"-like URLs !only!, see https://bearblog.dev/.
+disableKinds = ["taxonomy"]
+ignoreErrors = ["error-disable-taxonomy"]
+[permalinks]
+  blog = "/:slug/"
+  tags = "/blog/:slug"
+
+[services]
+  [services.rss]
+    limit = 42
+
+[params]
+  # The "description" of your website. This is used in the meta data of your generated html.
+  description = "Hugo + Bear = :heart:"
+
+  # The path to your "favicon". This should be a square (at least 32px x 32px) png-file.
+  # Hint: It's good practise to also put a "favicon.ico"-file into your "static"-folder.
+  favicon = "images/favicon.png"
+
+  # These "images" are used for the structured data templates. This will show up, when
+  # services like Twitter or Slack want to generate a preview of a link to your site.
+  # See https://gohugo.io/templates/internal#twitter-cards and
+  # https://gohugo.io/templates/internal#open-graph.
+  images = ["images/share.png"]
+
+  # Another "title" :-). This one is used as the site_name on the Hugo's internal
+  # opengraph structured data template.
+  # See https://ogp.me/ and https://gohugo.io/templates/internal#open-graph.
+  title = "SpiritShaman's Blog"
+
+  # This theme will, by default, inject a made-with-line at the bottom of the page.
+  # You can turn it off, but we would really appreciate if you don’t :-).
+  # hideMadeWithLine = true
+
+  # By default, this theme displays dates with a format like "02 Jan, 2006", but
+  # you can customize it by setting the `dateFormat` param in your site's config
+  # file. See [Hugo's Format function docs](https://gohugo.io/functions/format/)
+  # for details. An example TOML config that uses [ISO
+  # 8601](https://en.wikipedia.org/wiki/ISO_8601) format:
+  # dateFormat = "2006-01-02"
+  copyright = "Copyright © spiritshaman (CC BY 4.0)"
+  enableGitalk = true
+
+[params.Gitalk]
+  clientID = "ee9bcc26419cd9cf2d32" # Your client ID
+  clientSecret = "8c187c66030365076c4369040ec68f409ba21c29" # Your client secret
+  repo = "Ssssix40.github.io" # The repo to store comments
+  owner = "Ssssix40" # Your GitHub ID
+  admin= "Ssssix40" # Required. Github repository owner and collaborators. (Users who having write access to this repository)
+  id= "location.pathname" # The unique id of the page.
+  labels= "gitalk" # Github issue labels. If you used to use Gitment, you can change it
+  perPage= 15 # Pagination size, with maximum 100.
+  pagerDirection= "last" # Comment sorting direction, available values are 'last' and 'first'.
+  createIssueManually= false # If it is 'false', it is auto to make a Github issue when the administrators login.
+  distractionFreeMode= false # Enable hot key (cmd|ctrl + enter) submit comment.
