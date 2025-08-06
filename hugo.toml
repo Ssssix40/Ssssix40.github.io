@@ -85,7 +85,7 @@ ignoreErrors = ["error-disable-taxonomy"]
   # for details. An example TOML config that uses [ISO
   # 8601](https://en.wikipedia.org/wiki/ISO_8601) format:
   # dateFormat = "2006-01-02"
-  copyright = "Copyright © spiritshaman (CC BY 4.0)"
+  copyright = "Copyright © spiritshaman (CC BY-NC-SA 4.0)"
   enableGitalk = true
 
 [params.Gitalk]
